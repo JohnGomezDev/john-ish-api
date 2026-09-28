@@ -52,4 +52,4 @@ jobs:
             GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}
             CORS_ORIGIN=${{ vars.CORS_ORIGIN }}
             RAG_TOP_K=${{ vars.RAG_TOP_K }}
-            RUN_SEEDERS=true
+            RUN_SEEDERS=false
