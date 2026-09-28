@@ -9,9 +9,6 @@ services:
       - .env
     environment:
       DB_HOST: postgres
-    networks:
-      - default
-      - traefik-proxy
     volumes:
       - johnish_api_embeddings_cache:/var/cache/johnish-api/embeddings
     depends_on:
@@ -19,7 +16,6 @@ services:
         condition: service_healthy
     labels:
       - traefik.enable=true
-      - traefik.docker.network=traefik-proxy
       - traefik.http.routers.johnish-api.rule=Host(`api.johnish.dev`)
       - traefik.http.routers.johnish-api.entrypoints=websecure
       - traefik.http.routers.johnish-api.tls=true
@@ -58,7 +54,3 @@ volumes:
     name: johnish_api_postgres_data
   johnish_api_embeddings_cache:
     name: johnish_api_embeddings_cache
-
-networks:
-  traefik-proxy:
-    external: true
