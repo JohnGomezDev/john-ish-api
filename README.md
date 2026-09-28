@@ -19,7 +19,7 @@ La referencia de endpoints para el frontend está en [`API.md`](./API.md). La es
 | **@nestjs/throttler**                       | Rate limiting global                               |
 | **bcrypt**                                  | Hash de contraseñas y secretos de refresh token    |
 | Deezer API (HTTP)                           | Búsqueda y persistencia de la canción favorita     |
-| **Xenova/bge-m3** (local, ONNX)             | Embeddings para búsqueda semántica (1024 dims)     |
+| **Xenova/multilingual-e5-small** (local, ONNX) | Embeddings para búsqueda semántica (384 dims)  |
 | **Groq** `openai/gpt-oss-20b`               | LLM para generación de respuestas RAG              |
 
 ## Requisitos
@@ -103,7 +103,7 @@ pnpm seed:run:prod
 
 ## Asistente del Blog (RAG)
 
-Al publicar (o actualizar) un post, el sistema lo indexa automáticamente: convierte el markdown a texto plano, lo divide en chunks, genera embeddings con **BGE-M3** y los guarda en `posts_chunks` (pgvector). Al despublicar, elimina esos chunks.
+Al publicar (o actualizar) un post, el sistema lo indexa automáticamente: convierte el markdown a texto plano, lo divide en chunks, genera embeddings con **multilingual-e5-small** y los guarda en `posts_chunks` (pgvector). Al despublicar, elimina esos chunks.
 
 La consulta combina búsqueda semántica (HNSW, distancia coseno) y full-text (`tsvector` GIN) mediante **Reciprocal Rank Fusion (RRF)**. Con los fragmentos recuperados, Groq (`openai/gpt-oss-20b`) genera la respuesta.
 

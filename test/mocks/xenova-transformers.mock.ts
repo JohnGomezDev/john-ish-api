@@ -1,8 +1,8 @@
-const EMBEDDING_DIMENSION = 1024;
+import { EMBEDDING_DIMENSION } from '../../src/modules/rag/application/constants/embedding.constants';
 
 /**
- * `posts_chunks.embedding` is vector(1024). A zero vector lets indexing and
- * hybrid search run in e2e without loading the BGE-M3 model.
+ * `posts_chunks.embedding` is vector(384). A zero vector lets indexing and
+ * hybrid search run in e2e without loading the multilingual-e5-small model.
  */
 export function pipeline(): Promise<() => Promise<{ data: Float32Array }>> {
   return Promise.resolve((): Promise<{ data: Float32Array }> =>

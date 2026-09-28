@@ -49,7 +49,7 @@ describe('IndexPostUseCase', () => {
           useValue: {
             embedDocument: jest
               .fn()
-              .mockResolvedValue(new Array(1024).fill(0.1)),
+              .mockResolvedValue(new Array(384).fill(0.1)),
           },
         },
       ],
