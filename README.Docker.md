@@ -34,7 +34,11 @@ docker compose -f compose.hub.yaml up
 
 `DOCKER_IMAGE` en `.env` apunta a la imagen (por defecto `johngomezdev/john-ish-api:latest`). Cámbiala si el usuario de Docker Hub es otro.
 
-En este compose el puerto HTTP solo se publica en `127.0.0.1`, para un `cloudflared` instalado en el mismo host. El servicio del túnel es `http://localhost:<PORT>`. Desde internet ese puerto no se ve.
+En el VPS la API no publica su puerto. Traefik, en la red externa `traefik-proxy`, enruta `api.johnish.dev`: el entrypoint `web` redirige a HTTPS y `websecure` termina TLS con el certresolver `letsencrypt`. Esos nombres tienen que coincidir con el Traefik del servidor. El registro DNS `A` de `api.johnish.dev` apunta a la IP del VPS, y los puertos 80 y 443 deben estar abiertos.
+
+```bash
+docker network create traefik-proxy
+```
 
 ## Migraciones y seeders
 

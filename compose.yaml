@@ -3,6 +3,7 @@ name: johnish-api
 services:
   api:
     container_name: johnish-api
+    restart: unless-stopped
     build:
       context: .
       dockerfile: Dockerfile
@@ -21,6 +22,7 @@ services:
 
   postgres:
     container_name: johnish-api-postgres
+    restart: unless-stopped
     image: pgvector/pgvector:pg17
     environment:
       POSTGRES_USER: ${DB_USER}

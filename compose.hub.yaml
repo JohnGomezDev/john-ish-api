@@ -3,21 +3,39 @@ name: johnish-api
 services:
   api:
     container_name: johnish-api
+    restart: unless-stopped
     image: ${DOCKER_IMAGE}
     env_file:
       - .env
     environment:
       DB_HOST: postgres
-    ports:
-      - "127.0.0.1:${PORT:-4000}:${PORT:-4000}"
+    networks:
+      - default
+      - traefik-proxy
     volumes:
       - johnish_api_embeddings_cache:/var/cache/johnish-api/embeddings
     depends_on:
       postgres:
         condition: service_healthy
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-proxy
+      - traefik.http.routers.johnish-api.rule=Host(`api.johnish.dev`)
+      - traefik.http.routers.johnish-api.entrypoints=websecure
+      - traefik.http.routers.johnish-api.tls=true
+      - traefik.http.routers.johnish-api.tls.certresolver=letsencrypt
+      - traefik.http.routers.johnish-api.service=johnish-api
+      - traefik.http.routers.johnish-api-http.rule=Host(`api.johnish.dev`)
+      - traefik.http.routers.johnish-api-http.entrypoints=web
+      - traefik.http.routers.johnish-api-http.middlewares=johnish-api-https
+      - traefik.http.routers.johnish-api-http.service=johnish-api
+      - traefik.http.middlewares.johnish-api-https.redirectscheme.scheme=https
+      - traefik.http.middlewares.johnish-api-https.redirectscheme.permanent=true
+      - traefik.http.services.johnish-api.loadbalancer.server.port=${PORT:-4000}
 
   postgres:
     container_name: johnish-api-postgres
+    restart: unless-stopped
     image: pgvector/pgvector:pg17
     environment:
       POSTGRES_USER: ${DB_USER}
@@ -40,3 +58,7 @@ volumes:
     name: johnish_api_postgres_data
   johnish_api_embeddings_cache:
     name: johnish_api_embeddings_cache
+
+networks:
+  traefik-proxy:
+    external: true
