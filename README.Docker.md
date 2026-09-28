@@ -63,11 +63,11 @@ Nombres fijos, compartidos por los dos compose:
 | Volumen                        | Montaje           |
 | ------------------------------ | ----------------- |
 | `johnish_api_postgres_data`    | Datos de Postgres |
-| `johnish_api_embeddings_cache` | Pesos de BGE-M3   |
+| `johnish_api_embeddings_cache` | Pesos de multilingual-e5-small |
 
 `DB_PORT` es el puerto de Postgres dentro de la red de Docker en `5432`, `pnpm start` en el host y la API en Docker llegan a la misma base.
 
-El modelo no se descarga en el build. `EmbeddingService` escribe la caché en `EMBEDDINGS_CACHE_DIR` (`/var/cache/johnish-api/embeddings`), y el volumen conserva esos archivos entre builds. El primer arranque descarga BGE-M3; los siguientes lo cargan desde el volumen. Esa variable no va en `.env`: en el host, `pnpm start` usa la caché por defecto de Transformers.js.
+El modelo no se descarga en el build. `EmbeddingService` escribe la caché en `EMBEDDINGS_CACHE_DIR` (`/var/cache/johnish-api/embeddings`), y el volumen conserva esos archivos entre builds. El primer arranque descarga multilingual-e5-small; los siguientes lo cargan desde el volumen. Esa variable no va en `.env`: en el host, `pnpm start` usa la caché por defecto de Transformers.js.
 
 ## Variables de Docker en `.env`
 

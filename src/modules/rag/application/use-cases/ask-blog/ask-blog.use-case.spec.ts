@@ -23,7 +23,7 @@ describe('AskBlogUseCase', () => {
   let configService: { get: jest.Mock };
 
   const query = '¿Cómo funciona JWT?';
-  const queryVector = new Array(1024).fill(0.1);
+  const queryVector = new Array(384).fill(0.1);
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({

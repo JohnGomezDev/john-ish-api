@@ -28,7 +28,7 @@ export class PostChunkTypeOrmEntity {
   @Column({ type: 'text' })
   content: string;
 
-  @Column('vector', { length: 1024 })
+  @Column('vector', { length: 384 })
   embedding: number[];
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
