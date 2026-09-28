@@ -28,6 +28,8 @@ La referencia de endpoints para el frontend está en [`API.md`](./API.md). La es
 - pnpm
 - `pgvector/pgvector:pg17` (Docker) — PostgreSQL 17 con extensión pgvector incluida
 
+Para levantar API y base con Compose, sigue [`README.Docker.md`](./README.Docker.md).
+
 ## Instalación
 
 ```bash
@@ -45,15 +47,7 @@ pnpm start:dev
 
 La API queda en `http://localhost:<PORT>/api` (por defecto `PORT=4000` en `env.example`). Swagger: `http://localhost:<PORT>/api/docs`.
 
-El seeder de admin (solo entorno local) crea:
-
-| Campo    | Valor            |
-| -------- | ---------------- |
-| username | `admin`          |
-| password | `Admin123!`      |
-| email    | `admin@test.com` |
-
-También siembra categorías (`backend`, `frontend`, `devops`, `arquitectura`) y tags (`typescript`, `nestjs`, `react`, `postgresql`, `docker`, `clean-architecture`). Los seeders son idempotentes y **no** se ejecutan al arrancar la app.
+Los seeders siembran categorías y tags. Los seeders son idempotentes. Con `pnpm start` no se ejecutan al arrancar. En Docker solo corren si `RUN_SEEDERS=true` (ver [`README.Docker.md`](./README.Docker.md)).
 
 ## Variables de entorno
 
@@ -64,7 +58,9 @@ Definidas en `env.example`:
 | `NODE_ENV`                                                | `development` / `production`. En producción la cookie de refresh usa `secure: true`                              |
 | `PORT`                                                    | Puerto HTTP (default de código: `3000` si no se define)                                                          |
 | `CORS_ORIGIN`                                             | Orígenes permitidos, separados por coma (ej. `http://localhost:3000`). Si se omite, CORS acepta cualquier origen |
-| `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` | Conexión PostgreSQL                                                                                              |
+| `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` | Conexión PostgreSQL. `DB_PORT` es el puerto del servidor (dentro de Docker, el puerto del contenedor)            |
+| `RUN_SEEDERS`                                             | En Docker, `true` ejecuta los seeders compilados después de las migraciones. Default `false`                     |
+| `DOCKER_IMAGE`                                            | Imagen de Docker Hub que usa `compose.hub.yaml`                                                                  |
 | `JWT_ACCESS_SECRET`                                       | Secreto para firmar el access token (**obligatorio**)                                                            |
 | `JWT_ACCESS_EXPIRES_IN`                                   | TTL del JWT (default `15m`)                                                                                      |
 | `REFRESH_TOKEN_TTL_HOURS`                                 | Ventana de la sesión al hacer login (default `48`). El refresh **no** alarga esa fecha                           |
@@ -97,9 +93,13 @@ pnpm migration:run
 pnpm migration:revert
 pnpm migration:show
 pnpm seed:run
+
+pnpm migration:run:prod      # CLI sobre dist/ (contenedor)
+pnpm migration:revert:prod
+pnpm seed:run:prod
 ```
 
-`synchronize` y `migrationsRun` están en `false`. Las migraciones y seeders **solo** se ejecutan con los scripts anteriores.
+`synchronize` y `migrationsRun` están en `false`. En el host, las migraciones y los seeders se ejecutan con los scripts de arriba. En Docker, el entrypoint corre las migraciones compiladas en cada arranque; los seeders solo si `RUN_SEEDERS=true`. Detalle de compose, volúmenes y túnel: [`README.Docker.md`](./README.Docker.md).
 
 ## Asistente del Blog (RAG)
 

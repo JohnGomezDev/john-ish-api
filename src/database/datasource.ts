@@ -8,8 +8,6 @@ config({ quiet: true });
 
 const configService = new ConfigService();
 
-const isProduction = configService.get<string>('NODE_ENV') === 'production';
-
 export const dataSourceOptions: DataSourceOptions & SeederOptions = {
   type: 'postgres',
   host: configService.getOrThrow<string>('DB_HOST'),
@@ -17,7 +15,6 @@ export const dataSourceOptions: DataSourceOptions & SeederOptions = {
   username: configService.getOrThrow<string>('DB_USER'),
   password: configService.getOrThrow<string>('DB_PASSWORD'),
   database: configService.getOrThrow<string>('DB_NAME'),
-  ssl: isProduction ? { rejectUnauthorized: true } : false,
   entities: [join(__dirname, '../modules/**/*.typeorm-entity{.ts,.js}')],
   migrations: [join(__dirname, 'migrations/**/*{.js,.ts}')],
   migrationsTableName: 'migrations',

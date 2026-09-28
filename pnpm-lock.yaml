@@ -83,6 +83,9 @@ importers:
       typeorm:
         specifier: ^1.1.0
         version: 1.1.0(pg@8.23.0)(supports-color@8.1.1)(ts-node@10.9.2(@types/node@24.13.3)(typescript@5.9.3))
+      typeorm-extension:
+        specifier: ^4.0.0
+        version: 4.0.0(typeorm@1.1.0(pg@8.23.0)(supports-color@8.1.1)(ts-node@10.9.2(@types/node@24.13.3)(typescript@5.9.3)))
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3.2.0
@@ -162,9 +165,6 @@ importers:
       tsconfig-paths:
         specifier: ^4.2.0
         version: 4.2.0
-      typeorm-extension:
-        specifier: ^4.0.0
-        version: 4.0.0(typeorm@1.1.0(pg@8.23.0)(supports-color@8.1.1)(ts-node@10.9.2(@types/node@24.13.3)(typescript@5.9.3)))
       typescript:
         specifier: ^5.7.3
         version: 5.9.3

@@ -24,7 +24,10 @@
     "migration:run": "pnpm exec typeorm-ts-node-commonjs migration:run -d src/database/datasource.ts",
     "migration:revert": "pnpm exec typeorm-ts-node-commonjs migration:revert -d src/database/datasource.ts",
     "migration:show": "pnpm exec typeorm-ts-node-commonjs migration:show -d src/database/datasource.ts",
-    "seed:run": "pnpm exec typeorm-extension seed:run -d src/database/datasource.ts"
+    "seed:run": "pnpm exec typeorm-extension seed:run -d src/database/datasource.ts",
+    "migration:run:prod": "node ./node_modules/typeorm/cli.js migration:run -d dist/database/datasource.js",
+    "migration:revert:prod": "node ./node_modules/typeorm/cli.js migration:revert -d dist/database/datasource.js",
+    "seed:run:prod": "node ./node_modules/typeorm-extension/bin/cli.mjs seed:run -d dist/database/datasource.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -51,7 +54,8 @@
     "reflect-metadata": "^0.2.2",
     "remove-markdown": "^0.7.0",
     "rxjs": "^7.8.1",
-    "typeorm": "^1.1.0"
+    "typeorm": "^1.1.0",
+    "typeorm-extension": "^4.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -80,7 +84,6 @@
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typeorm-extension": "^4.0.0",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
   },

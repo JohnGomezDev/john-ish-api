@@ -1,0 +1,47 @@
+name: johnish-api
+
+services:
+  api:
+    container_name: johnish-api
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: johnish-api:local
+    env_file:
+      - .env
+    environment:
+      DB_HOST: postgres
+    ports:
+      - "${PORT:-4000}:${PORT:-4000}"
+    volumes:
+      - johnish_api_embeddings_cache:/var/cache/johnish-api/embeddings
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    container_name: johnish-api-postgres
+    restart: unless-stopped
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      PGPORT: ${DB_PORT:-5432}
+    command: ["postgres", "-c", "port=${DB_PORT:-5432}"]
+    ports:
+      - "${DB_EXT_PORT:-5432}:${DB_PORT:-5432}"
+    volumes:
+      - johnish_api_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME} -p ${DB_PORT:-5432}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  johnish_api_postgres_data:
+    name: johnish_api_postgres_data
+  johnish_api_embeddings_cache:
+    name: johnish_api_embeddings_cache

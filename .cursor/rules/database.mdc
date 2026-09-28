@@ -58,7 +58,20 @@ TypeOrmModule.forRoot(dataSourceOptions)
 - **`migration:generate`** diffs entities vs. the current DB state and produces the migration file.  
   Always pass the target path: `pnpm migration:generate src/database/migrations/<migration-name>`.
 - Migrations live in `src/database/migrations/`.
-- **Never run migrations automatically** — always manually via the scripts above.
+- **Do not set `migrationsRun: true`.** On the host, run migrations only with the scripts above.
+- Docker is the exception: [`docker/entrypoint.sh`](../../docker/entrypoint.sh) runs the compiled migration (`migration:run:prod`) on every container start, before the API. If it fails, the container exits. Seeders run in that entrypoint only when `RUN_SEEDERS=true`.
+
+Compiled scripts (image / `dist`):
+
+```json
+"scripts": {
+  "migration:run:prod": "node ./node_modules/typeorm/cli.js migration:run -d dist/database/datasource.js",
+  "migration:revert:prod": "node ./node_modules/typeorm/cli.js migration:revert -d dist/database/datasource.js",
+  "seed:run:prod": "node ./node_modules/typeorm-extension/bin/cli.mjs seed:run -d dist/database/datasource.js"
+}
+```
+
+`migration:revert:prod` undoes only the last applied migration. Starting the same image again re-applies it, because the entrypoint always runs `migration:run`.
 
 ## Seeders
 
@@ -87,7 +100,7 @@ export class CategorySeeder implements Seeder {
 }
 ```
 
-**Never run seeders automatically** — always ask the user before executing them.
+On the host, **never run seeders automatically** — always ask the user before executing them. In Docker, seeders run only when `RUN_SEEDERS=true` in `.env`; leave that flag `false` unless the user asked to seed.
 
 ---
 

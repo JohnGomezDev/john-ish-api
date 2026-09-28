@@ -1,23 +1,34 @@
 jest.mock('@xenova/transformers', () => ({
   pipeline: jest.fn(),
+  env: { cacheDir: '' },
 }));
 
 import { ServiceUnavailableException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
-import { pipeline } from '@xenova/transformers';
+import { env, pipeline } from '@xenova/transformers';
 import { BGE_QUERY_PREFIX } from '../../application/constants/embedding.constants';
 import { EmbeddingService } from './embedding.service';
 
 describe('EmbeddingService', () => {
   let service: EmbeddingService;
+  let configService: { get: jest.Mock };
   let mockPipelineInstance: jest.Mock;
 
   beforeEach(async () => {
+    env.cacheDir = '';
     mockPipelineInstance = jest.fn();
     (pipeline as jest.Mock).mockResolvedValue(mockPipelineInstance);
+    configService = { get: jest.fn().mockReturnValue(undefined) };
 
     const module = await Test.createTestingModule({
-      providers: [EmbeddingService],
+      providers: [
+        EmbeddingService,
+        {
+          provide: ConfigService,
+          useValue: configService,
+        },
+      ],
     }).compile();
 
     service = module.get(EmbeddingService);
@@ -25,6 +36,27 @@ describe('EmbeddingService', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  // A configured cache directory is applied before pipeline() so local weights are reused
+  it('should load the model from the configured cache directory', async () => {
+    const cacheDir = '/var/cache/johnish-api/embeddings';
+    configService.get.mockReturnValue(cacheDir);
+    let cacheDirWhenLoaded: string | undefined;
+    (pipeline as jest.Mock).mockImplementation(() => {
+      cacheDirWhenLoaded = env.cacheDir as string;
+      return Promise.resolve(mockPipelineInstance);
+    });
+
+    await service.onModuleInit();
+
+    expect(configService.get).toHaveBeenCalledWith('EMBEDDINGS_CACHE_DIR');
+    expect(cacheDirWhenLoaded).toBe(cacheDir);
+    expect(pipeline).toHaveBeenCalledTimes(1);
+    expect(pipeline).toHaveBeenCalledWith(
+      'feature-extraction',
+      'Xenova/bge-m3',
+    );
   });
 
   // Pipeline should load the BGE-M3 feature-extraction model on init

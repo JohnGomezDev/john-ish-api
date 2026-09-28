@@ -1,0 +1,55 @@
+name: Deploy to Hostinger VPS
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Build, push & deploy
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ vars.DOCKER_IMAGE }}
+
+      - name: Deploy to Hostinger VPS
+        uses: hostinger/deploy-action@v1
+        with:
+          api-key: ${{ secrets.HOSTINGER_API_KEY }}
+          virtual-machine: ${{ vars.HOSTINGER_VM_ID }}
+          project-name: johnish-api
+          docker-compose-path: compose.hub.yaml
+          environment-variables: |
+            NODE_ENV=production
+            PORT=${{ vars.PORT }}
+            DOCKER_IMAGE=${{ vars.DOCKER_IMAGE }}
+            DB_USER=${{ vars.DB_USER }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            DB_NAME=${{ vars.DB_NAME }}
+            DB_PORT=${{ vars.DB_PORT }}
+            DB_EXT_PORT=${{ vars.DB_EXT_PORT }}
+            JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }}
+            JWT_ACCESS_EXPIRES_IN=${{ vars.JWT_ACCESS_EXPIRES_IN }}
+            REFRESH_TOKEN_TTL_HOURS=${{ vars.REFRESH_TOKEN_TTL_HOURS }}
+            GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}
+            CORS_ORIGIN=${{ vars.CORS_ORIGIN }}
+            RAG_TOP_K=${{ vars.RAG_TOP_K }}
+            RUN_SEEDERS=true

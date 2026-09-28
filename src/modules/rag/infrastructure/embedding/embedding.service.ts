@@ -4,7 +4,12 @@ import {
   OnModuleInit,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import { pipeline, type FeatureExtractionPipeline } from '@xenova/transformers';
+import { ConfigService } from '@nestjs/config';
+import {
+  env,
+  pipeline,
+  type FeatureExtractionPipeline,
+} from '@xenova/transformers';
 import { BGE_QUERY_PREFIX } from '../../application/constants/embedding.constants';
 
 @Injectable()
@@ -12,7 +17,14 @@ export class EmbeddingService implements OnModuleInit {
   private readonly logger = new Logger(EmbeddingService.name);
   private pipelineInstance: FeatureExtractionPipeline | null = null;
 
+  constructor(private readonly configService: ConfigService) {}
+
   async onModuleInit(): Promise<void> {
+    const cacheDir = this.configService.get<string>('EMBEDDINGS_CACHE_DIR');
+    if (cacheDir) {
+      env.cacheDir = cacheDir;
+    }
+
     try {
       this.pipelineInstance = await pipeline(
         'feature-extraction',

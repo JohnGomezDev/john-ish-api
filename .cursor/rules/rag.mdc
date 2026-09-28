@@ -18,6 +18,7 @@ Hybrid retrieval (pgvector + `tsvector` + RRF) over published posts, with local 
 ## Embedding
 
 - Never instantiate the `@xenova/transformers` pipeline outside `EmbeddingService`.
+- Before `pipeline()`, set `env.cacheDir` from `ConfigService` (`EMBEDDINGS_CACHE_DIR`) when that variable is present. The image sets it to `/var/cache/johnish-api/embeddings`. Compose mounts the named volume `johnish_api_embeddings_cache` there so BGE-M3 is not downloaded again on each image build. Do not bake the download into the Docker build and do not cache weights inside `node_modules`.
 - Document chunks: `embedDocument(text)` — **no** instruction prefix.
 - Search queries: `embedQuery(query)` — always uses `BGE_QUERY_PREFIX` from `infrastructure/utils/embedding.constants.ts`.
 - If the pipeline is not initialized, throw `ServiceUnavailableException`.
